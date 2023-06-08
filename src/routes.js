@@ -20,10 +20,10 @@ import Profile from "./pages/Profile";
 export default function Router() {
     const routes = useRoutes([
         {
-            path: '/dashboard',
+            path: '/chat',
             element: <DashboardLayout/>,
             children: [
-                {element: <Navigate to="/dashboard/app"/>, index: true},
+                {element: <Navigate to="/chat/app"/>, index: true},
                 {path: 'app', element: <DashboardAppPage/>},
                 {path: 'management/user', element: <UserPage/>},
                 {path: 'management/product-pagin', element: <ProductPage/>},
@@ -48,7 +48,7 @@ export default function Router() {
         {
             element: <SimpleLayout/>,
             children: [
-                {element: <Navigate to="/dashboard/app"/>, index: true},
+                {element: <Navigate to="/chat/app"/>, index: true},
                 // {path: '404', element: <Page404/>},
                 // { path: '401', element: <Page401/> },
                 {path: 'error/:id', element: <ErrorPage/>},

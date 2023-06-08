@@ -5,7 +5,6 @@ import {store} from '../stores/store';
 axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL;
 axios.interceptors.request.use(response => {
     const {user} = store.getState().user;
-    console.log(response.headers.common)
     if (user) response.headers['x-access-token'] = user.token;
     return response;
 })
@@ -78,6 +77,9 @@ const Messages = {
     list: (conversationId) => requests.get(`/messages/list?conversationId=${conversationId}`),
     send: (body) => requests.post('/messages/send', body)
 };
+ const Members = {
+     list: (conversationId) => requests.get(`/conversations/list-members?conversationId=${conversationId}`)
+ }
 
 const Products = {
     list: (params) => requests.getPagination('products', params),
@@ -89,6 +91,7 @@ const agent = {
     Auth,
     Conversations,
     Messages,
+    Members,
     Products
 };
 

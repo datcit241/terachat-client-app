@@ -14,7 +14,6 @@ import Logo from '../../../components/logo';
 import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 //
-import navConfig from './config';
 
 // ----------------------------------------------------------------------
 
@@ -59,33 +58,7 @@ export default function Nav({openNav, onCloseNav}) {
                 <Logo/>
             </Box>
 
-            <Box sx={{mb: 5, mx: 2.5}}>
-                <Link underline="none">
-                    <StyledAccount>
-                        {user
-                            ? <>
-                                <Avatar src={user.avatar} alt="photoURL"/>
-
-                                <Box sx={{ml: 2}}>
-                                    <Typography variant="subtitle2" sx={{color: 'text.primary'}}>
-                                        {user.name}
-                                    </Typography>
-
-                                    <Typography variant="body2" sx={{color: 'text.secondary'}}>
-                                        {account.role}
-                                    </Typography>
-                                </Box>
-                            </>
-                            : <Box sx={{ml: 2}}>
-                                <Typography variant="subtitle2" sx={{color: 'text.primary'}}>
-                                    Please login, dude!
-                                </Typography>
-                            </Box>}
-                    </StyledAccount>
-                </Link>
-            </Box>
-
-            <NavSection data={navConfig}/>
+            <NavSection/>
 
             <Box sx={{flexGrow: 1}}/>
         </Scrollbar>

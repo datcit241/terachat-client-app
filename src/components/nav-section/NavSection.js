@@ -1,4 +1,4 @@
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import PropTypes from 'prop-types';
 import {NavLink as RouterLink} from 'react-router-dom';
 import {useState} from "react";
@@ -7,117 +7,79 @@ import {Box, List, ListItemText, Stack} from '@mui/material';
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
 //
 import {StyledNavItem, StyledNavItemIcon} from './styles';
+import {setCurrentConversation} from "../../features/conversationSlice";
 
 // ----------------------------------------------------------------------
 
 NavSection.propTypes = {
-    data: PropTypes.array,
+  data: PropTypes.array,
 };
 
 export default function NavSection({data = [], ...other}) {
-    const {user} = useSelector(store => store.user);
-    return (
-        <Box {...other}>
-            <List disablePadding sx={{p: 1}}>
-                {data.map((navItem, index) => <Item key={index} {...{...navItem, user}}/>)}
-            </List>
-        </Box>
-    );
+  const {conversations, currentConversation} = useSelector(store => store.conversation);
+  return (
+      <Box {...other}>
+        <List disablePadding sx={{p: 1}}>
+          {conversations.map((conversation, index) => <Item key={index} {...{
+            title: conversation.displayName,
+            conversation,
+            currentConversation
+          }}/>)}
+        </List>
+      </Box>
+  );
 }
 
 // ----------------------------------------------------------------------
 
+function getDescriptionName({members, user}) {
+  console.log(members);
+  let name;
+  if (members) {
+    if (members?.length === 2) {
+      name = members.find(member => member.UserId !== user.Id).User.displayName;
+    } else {
+      const limit = 2;
+      const names = members
+          .filter(member => member.UserId !== user.Id)
+          .map(member => member.User.displayName);
+      name = names.slice(0, Math.min(limit, names.length)).join(", ");
+      if (members.length > limit + 1) {
+        name += `... +${members.length - limit + 1} others`
+      }
+    }
+  }
+  return name;
+}
+
 function Item(props) {
-    const {user, type, requireLogin, ...item} = props;
-    if (requireLogin && !user) return <></>;
-    return (
-        <>
-            {type === 'group'
-                ? <GroupItem item={item}/>
-                : <NavItem item={item}/>
-            }
-        </>
-    )
-}
+  const {title, conversation, currentConversation, icon, info} = props;
+  const dispatch = useDispatch();
+  const {members} = useSelector(store => store.member);
+  const {user} = useSelector(store => store.user);
 
-function GroupItem({item}) {
-    const {children, ...other} = item;
-    const [showChildren, setShowChildren] = useState(false);
+  const onClick = () => {
+    if (conversation !== currentConversation) {
+      dispatch(setCurrentConversation(conversation));
+    }
+  };
 
-    return (
-        <Stack
-            sx={{
-                bgcolor: 'action.selected',
-                borderRadius: '8px',
-                p: 1
-            }}
-        >
-            <ParentItem item={other} onClick={() => setShowChildren(prev => !prev)} showChildren={showChildren}/>
-            {showChildren && <Stack
-                sx={{
-                    paddingX: 2,
-                }}
-            >
-                {children.map((child, index) => (
-                    <NavItem item={child} key={index}/>
-                ))}
-            </Stack>}
-        </Stack>
-    )
-}
+  const sx = currentConversation?.id === conversation?.id ? {
+    color: 'text.primary',
+    bgcolor: 'action.focus',
+    fontWeight: 'fontWeightBold',
+  } : {}
 
-function ParentItem({item, showChildren, ...other}) {
-    const {title, icon, info} = item;
+  return (
+      <StyledNavItem
+          onClick={onClick}
+          sx={sx}
+      >
+        <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
 
-    return (
-        <StyledNavItem
-            sx={{
-                '&.active': {
-                    color: 'text.primary',
-                    bgcolor: 'action.focus',
-                    fontWeight: 'fontWeightBold',
-                },
-            }}
-            {...other}
-        >
-            <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
+        <ListItemText primary={title || getDescriptionName({members: members[conversation?.id], user}) || "Conversation"}/>
 
-            <ListItemText disableTypography primary={title}/>
-            {showChildren
-                ? <ExpandLess sx={{mr: 2}}/>
-                : <ExpandMore sx={{mr: 2}}/>
-            }
-
-            {info && info}
-        </StyledNavItem>
-    );
-}
-
-
-NavItem.propTypes = {
-    item: PropTypes.object,
-};
-
-function NavItem({item}) {
-    const {title, path, icon, info} = item;
-
-    return (
-        <StyledNavItem
-            component={RouterLink}
-            to={path}
-            sx={{
-                '&.active': {
-                    color: 'text.primary',
-                    bgcolor: 'action.selected',
-                    fontWeight: 'fontWeightBold',
-                },
-            }}
-        >
-            <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
-
-            <ListItemText disableTypography primary={title}/>
-
-            {info && info}
-        </StyledNavItem>
-    );
+        {info && info}
+      </StyledNavItem>
+  );
 }
