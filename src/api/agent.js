@@ -2,7 +2,7 @@ import axios from 'axios';
 // import {history} from '../index';
 import {store} from '../stores/store';
 
-axios.defaults.baseURL = process.env.REACT_APP_API_BASE_URL;
+axios.defaults.baseURL = `${process.env.REACT_APP_API_PROTOCOL}://${process.env.REACT_APP_API_BASE_URL}`;
 axios.interceptors.request.use(response => {
     const {user} = store.getState().user;
     if (user) response.headers['x-access-token'] = user.token;

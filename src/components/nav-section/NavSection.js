@@ -33,9 +33,8 @@ export default function NavSection({data = [], ...other}) {
 // ----------------------------------------------------------------------
 
 function getDescriptionName({members, user}) {
-  console.log(members);
   let name;
-  if (members) {
+  if (members && user) {
     if (members?.length === 2) {
       name = members.find(member => member.UserId !== user.Id).User.displayName;
     } else {

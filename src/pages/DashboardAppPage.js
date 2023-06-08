@@ -10,6 +10,7 @@ import {useNavigate} from "react-router-dom";
 import ReactTimeAgo from "react-time-ago";
 import ReactEmoji from "react-emoji";
 import ScrollToBottom from "react-scroll-to-bottom";
+import io from "socket.io-client";
 // components
 import Iconify from '../components/iconify';
 // sections
@@ -27,13 +28,14 @@ import {
 } from '../sections/@dashboard/app';
 import agent from "../api/agent";
 import {clearConversations, list} from "../features/conversationSlice";
-import {clearMessages, list as getMessages, send} from "../features/messageSlice";
+import {addMessage, clearMessages, list as getMessages, send} from "../features/messageSlice";
 import {clearMembers, list as getMembers} from "../features/memberSlice";
 import Scrollbar from "../components/scrollbar";
 import {logOut} from "../features/userSlice";
 
 // ----------------------------------------------------------------------
 
+let socket;
 export default function DashboardAppPage() {
   const theme = useTheme();
   const {user} = useSelector(store => store.user);
@@ -44,6 +46,7 @@ export default function DashboardAppPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    socket = io(`ws://${process.env.REACT_APP_API_BASE_URL}`)
     if (!user) {
       navigate("/login");
     }
@@ -55,12 +58,24 @@ export default function DashboardAppPage() {
   }, [])
 
   useEffect(() => {
+    socket?.on("welcome", (message) => console.log(message));
+  }, [socket])
+
+  useEffect(() => {
     if (!!user) {
+      if (socket) {
+        socket.emit("addUser", user.id);
+        socket.on("getMessage", message => {
+          console.log(message);
+          dispatch(addMessage(message));
+        })
+      }
       dispatch(list());
     } else {
       dispatch(clearConversations());
       dispatch(clearMessages());
       dispatch(clearMembers());
+      navigate("/login");
     }
   }, [user])
 
@@ -83,7 +98,12 @@ export default function DashboardAppPage() {
         conversationId: currentConversation.id,
         text,
       };
-      dispatch(send(message));
+      dispatch(send({
+        message, callback: (messageId) => {
+          console.log(socket);
+          socket?.emit("sendMessage", messageId)
+        }
+      }));
       setText("");
     }
   }
@@ -104,16 +124,18 @@ export default function DashboardAppPage() {
                   maxHeight: "calc(100% - 68px)"
                 }}
             >
-              {currentConversation?.id && messages[currentConversation.id] && messages[currentConversation.id].map(message => {
+              {currentConversation?.id && messages[currentConversation.id] && messages[currentConversation.id].map((message, index) => {
                 const isCurrentUserMessage = message.UserId === user?.id;
                 const member = members[currentConversation.id]?.find(member => member.UserId === message.UserId);
                 return <Stack
+                    key={index}
                     sx={{
                       bgcolor: "secondary",
                       ml: isCurrentUserMessage ? "auto" : "0",
                     }}
                 >
-                  {!isCurrentUserMessage && member?.User.displayName && <Typography>{member.User.displayName}</Typography>}
+                  {!isCurrentUserMessage && member?.User.displayName &&
+                      <Typography>{member.User.displayName}</Typography>}
                   <Paper
                       sx={{
                         width: "fit-content",

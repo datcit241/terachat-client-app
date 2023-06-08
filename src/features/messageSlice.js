@@ -14,8 +14,12 @@ export const list = createAsyncThunk('message/list',
 );
 
 export const send = createAsyncThunk('message/send',
-    async (body, {dispatch}) => {
-      return agent.Messages.send(body)
+    async ({message, callback}, {dispatch}) => {
+      const msg = await agent.Messages.send(message)
+      if (msg) {
+        callback(msg.id);
+      }
+      return msg;
     }
 );
 
@@ -23,7 +27,13 @@ const conversationSlice = createSlice({
   name: 'conversation',
   initialState,
   reducers: {
-    clearMessages: () => initialState
+    addMessage: (state, {payload: message}) => {
+      console.log("adding a message");
+      if (!state.messages[message.ConversationId].some(msg => msg.id === message.id)) {
+        state.messages[message.ConversationId] = [...state.messages[message.ConversationId], message];
+      }
+    },
+    clearMessages: () => initialState,
   },
   extraReducers: ({addCase}) => {
     addCase(list.pending, (state) => {
@@ -60,4 +70,4 @@ const conversationSlice = createSlice({
 })
 
 export default conversationSlice.reducer;
-export const {clearMessages} = conversationSlice.actions;
+export const {addMessage, clearMessages} = conversationSlice.actions;
