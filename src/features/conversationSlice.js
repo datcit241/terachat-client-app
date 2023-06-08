@@ -27,6 +27,9 @@ const conversationSlice = createSlice({
     setCurrentConversation: (state, {payload}) => {
       state.currentConversation = payload;
     },
+    addConversation: (state, {payload}) => {
+      state.conversations = [...state.conversations, payload];
+    },
     clearConversations: () => initialState
   },
   extraReducers: ({addCase}) => {
@@ -62,4 +65,4 @@ const conversationSlice = createSlice({
 })
 
 export default conversationSlice.reducer;
-export const {setCurrentConversation, clearConversations} = conversationSlice.actions;
+export const {setCurrentConversation, addConversation, clearConversations} = conversationSlice.actions;

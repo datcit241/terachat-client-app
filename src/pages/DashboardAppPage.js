@@ -32,6 +32,7 @@ import {addMessage, clearMessages, list as getMessages, send} from "../features/
 import {clearMembers, list as getMembers} from "../features/memberSlice";
 import Scrollbar from "../components/scrollbar";
 import {logOut} from "../features/userSlice";
+import NewConversation from "../components/chat/NewConversation";
 
 // ----------------------------------------------------------------------
 
@@ -116,6 +117,7 @@ export default function DashboardAppPage() {
         <Container
             maxWidth="xl"
         >
+          <NewConversation/>
           <ScrollToBottom>
             <Stack
                 sx={{
@@ -130,7 +132,6 @@ export default function DashboardAppPage() {
                 return <Stack
                     key={index}
                     sx={{
-                      bgcolor: "secondary",
                       ml: isCurrentUserMessage ? "auto" : "0",
                     }}
                 >
@@ -163,13 +164,17 @@ export default function DashboardAppPage() {
                 position: "fixed",
                 bottom: 0,
                 left: "50%",
-                transform: "translateX(-50%)"
+                transform: "translateX(-50%)",
+                bgcolor: theme.palette.grey[200],
               }}
           >
-            <Input
+              <Input
                 value={text}
                 onChange={(event) => {
                   setText(event.target.value)
+                }}
+                onKeyDown={(e) => {
+                  if (e.keyCode === 13) handleSend();
                 }}
                 sx={{flex: "1"}}
             />

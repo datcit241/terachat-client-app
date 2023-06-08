@@ -28,8 +28,9 @@ const conversationSlice = createSlice({
   initialState,
   reducers: {
     addMessage: (state, {payload: message}) => {
-      console.log("adding a message");
-      if (!state.messages[message.ConversationId].some(msg => msg.id === message.id)) {
+      if (!state.messages[message.ConversationId]) {
+        state.messages[message.ConversationId] = [message];
+      } else if (!state.messages[message.ConversationId].some(msg => msg.id === message.id)) {
         state.messages[message.ConversationId] = [...state.messages[message.ConversationId], message];
       }
     },
@@ -42,7 +43,7 @@ const conversationSlice = createSlice({
     });
     addCase(list.fulfilled, (state, {payload: {messages}}) => {
       if (messages.length) {
-        state.messages[messages[0].ConversationId] = messages;
+        state.messages[messages[0].ConversationId] = [...messages];
       }
       state.isLoading = false;
       state.hasError = false;
