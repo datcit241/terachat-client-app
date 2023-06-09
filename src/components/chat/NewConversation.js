@@ -11,11 +11,12 @@ import {
   ListItemButton, Stack, Switch, TextField, Typography
 } from "@mui/material";
 import {useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import agent from "../../api/agent";
 import {addConversation} from "../../features/conversationSlice";
 
 const NewConversation = () => {
+  const {user} = useSelector(store => store.user);
   const [users, setUsers] = useState([]);
   const [open, setOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -56,8 +57,7 @@ const NewConversation = () => {
   useEffect(() => {
     if (!users.length) {
       agent.Users.list().then(res => {
-        console.log(res);
-        setUsers(res);
+        setUsers(res.filter(usr => usr.id !== user.id));
       })
     }
   }, [])

@@ -1,13 +1,14 @@
 import {useDispatch, useSelector} from "react-redux";
 import PropTypes from 'prop-types';
 import {NavLink as RouterLink} from 'react-router-dom';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 // @mui
 import {Box, List, ListItemText, Stack} from '@mui/material';
 import {ExpandLess, ExpandMore} from "@mui/icons-material";
 //
 import {StyledNavItem, StyledNavItemIcon} from './styles';
 import {setCurrentConversation} from "../../features/conversationSlice";
+import {getDescriptionName} from "../../features/getDescriptionName";
 
 // ----------------------------------------------------------------------
 
@@ -32,30 +33,24 @@ export default function NavSection({data = [], ...other}) {
 
 // ----------------------------------------------------------------------
 
-function getDescriptionName({members, user}) {
-  let name;
-  if (members && user) {
-    if (members?.length === 2) {
-      name = members.find(member => member.UserId !== user.Id).User.displayName;
-    } else {
-      const limit = 2;
-      const names = members
-          .filter(member => member.UserId !== user.Id)
-          .map(member => member.User.displayName);
-      name = names.slice(0, Math.min(limit, names.length)).join(", ");
-      if (members.length > limit + 1) {
-        name += `... +${members.length - limit + 1} others`
-      }
-    }
-  }
-  return name;
-}
-
 function Item(props) {
   const {title, conversation, currentConversation, icon, info} = props;
   const dispatch = useDispatch();
   const {members} = useSelector(store => store.member);
   const {user} = useSelector(store => store.user);
+  const [name, setName] = useState(title);
+
+  useEffect(() => {
+    if (!title) {
+      setName(getDescriptionName({members: members[conversation?.id], user}) || "Conversation");
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!title) {
+      setName(getDescriptionName({members: members[conversation?.id], user}) || "Conversation");
+    }
+  }, [conversation, members, user]);
 
   const onClick = () => {
     if (conversation !== currentConversation) {
@@ -76,7 +71,7 @@ function Item(props) {
       >
         <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
 
-        <ListItemText primary={title || getDescriptionName({members: members[conversation?.id], user}) || "Conversation"}/>
+        <ListItemText primary={name}/>
 
         {info && info}
       </StyledNavItem>
