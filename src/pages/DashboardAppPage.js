@@ -33,6 +33,7 @@ import {clearMembers, list as getMembers} from "../features/memberSlice";
 import Scrollbar from "../components/scrollbar";
 import {logOut} from "../features/userSlice";
 import NewConversation from "../components/chat/NewConversation";
+import {ConversationInfo} from "../components/chat/ConvesationInfo";
 
 // ----------------------------------------------------------------------
 
@@ -118,6 +119,7 @@ export default function DashboardAppPage() {
             maxWidth="xl"
         >
           <NewConversation/>
+          <ConversationInfo/>
           <ScrollToBottom>
             <Stack
                 sx={{

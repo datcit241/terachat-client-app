@@ -3,7 +3,7 @@ import { forwardRef } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Box, Link } from '@mui/material';
+import {Box, Link, Typography} from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -34,11 +34,13 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
         width: 40,
         height: 40,
         display: 'inline-flex',
+        alignItems: 'center',
+        cursor: 'pointer',
         ...sx,
       }}
       {...other}
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 512 512">
+      <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 512 512" style={{minWidth: "40px", marginRight: "12px"}}>
         <defs>
           <linearGradient id="BG1" x1="100%" x2="50%" y1="9.946%" y2="50%">
             <stop offset="0%" stopColor={PRIMARY_DARK} />
@@ -71,6 +73,7 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
           />
         </g>
       </svg>
+      <Typography>Terachat</Typography>
     </Box>
   );
 
